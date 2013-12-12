@@ -1,14 +1,75 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  </head>
-  <body>
-      <h1>Modals</h1>
-      <ul>
-          <li><a href="01_natives">01_natives</a></li>
-          
-      </ul>
-  </body>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style>
+            body {background-color: #111; font-size: 16px}
+            ul {
+                margin: 10% auto 0px;
+
+                width: 175px;
+                height: 175px;
+                color: #fff;
+                padding: 10px 0 0;
+                background-image: linear-gradient(345deg,#000 0%, #000 50%);
+                text-align: center;
+                text-indent: 0px;
+                list-style-type: none;
+                padding: 0;
+                font-family: Arial;
+                transform: scale(0,0);
+                -webkit-transition:text-shadow 0.5s ease-in-out;
+                -moz-transition:text-shadow 0.5s ease-in-out;
+                -o-transition:text-shadow 0.5s ease-in-out;
+                -ms-transition:text-shadow 0.5s ease-in-out;
+                transition:all 2.0s linear;    
+                opacity:0;
+                text-shadow:100px 10px 1px #fff;   
+                border-radius: 1000px;
+                border: 10px solid #eee;
+                box-shadow: 0px 0px 10px rgba(255,255,255,0.5);
+                transform: rotateY(0deg);
+            }
+
+            ul.active{
+                background-image: linear-gradient(45deg,#000 0%, #f33 50%);
+                opacity: 1;
+                text-shadow:0px 0px 1px #f44;   
+                transform: scale(1.75,1.75);
+                padding: 20px;
+                transform: rotateY(380deg);
+            }
+            li {display:block; margin: 10px 0;}
+
+        </style>
+    </head>
+    <body>
+        <h1>Modals</h1>
+        <ul>
+            <li><a href="01_natives">01_natives</a> - <p>Just the native popups</p></li>
+            <li><a href="02_skeleton">02_skeleton</a> - <p>Basic modal window</p></li>
+        </ul>
+
+        <script>
+
+            function check() {
+                if (!!window.jQuery) {
+                    $('ul').fadeIn(1000).addClass('active')
+                    return true;
+                }
+                setTimeout(check, 10);
+            }
+
+            var s = document.createElement('script');
+            var t = document.getElementsByName('head')[0];
+            s.src = 'http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js';
+            s.onload = check;
+            document.body.appendChild(s);
+
+
+            //    });
+
+        </script>
+    </body>
 </html>
