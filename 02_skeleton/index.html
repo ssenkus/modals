@@ -3,14 +3,107 @@
   <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        #outer {
+    padding: 10px;
+    float: left;
+    background-color: #dea;
+    width: auto;
+    height: auto;
+    color: #000;
+    text-align: center;
+}
+#innerContainer {
+    color: #fff;
+    width: auto;
+    padding: 5px;
+    background-color: #f00;
+}
+#inner {
+    padding: 50px;
+    background-color: #222;
+    width: auto;
+}
+#inner input {
+    clear: both;
+    display: block;
+}
+    </style>
   </head>
   <body>
       
-      <img src='http://www.placekitten.com/300/300' />
+      <div id="outer">#outer
+    <div id="innerContainer">
+        <div id="inner">
+             <h3>#inner</h3>
+
+            <form>
+                <label>Username:</label>
+                <input type="text" />
+                <label>Password:</label>
+                <input type="password" />
+                <hr />
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <hr />
+        <button id="trigger">#btn</button>
+    </div>
+</div>
+<div id="eTargetStatus"></div>
       
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
       <script>
-                    
+      /************************************************************
+      Button opens a hidden div and attaches 
+      a document-wide event handler.
+      Clicking anywhere other than inside
+      #innerContainer will hide the original hidden div
+      and remove the document-wide event handler
+************************************************************/
+//SETUP
+$('#inner').hide();
+
+function attachOneShotClick() {
+    $(document).on('click', function (e) {
+        $('#eTargetStatus').text('clicked: ' + ((e.target.id) ? '#' + e.target.id : e.target));
+        if (!$(e.target).is('#innerContainer, #innerContainer *')) {
+            $('#inner').slideUp();
+            $(document).off('click');
+            $('#eTargetStatus').text($('#eTargetStatus').text() + ' - document event listener removed')
+        } else {
+            e.stopPropagation();
+        }
+    });
+}
+$('#trigger').on('click', function () {
+    $('#eTargetStatus').text('clicked: #' + $(this).attr('id'));
+    $('#inner').slideDown();
+    attachOneShotClick();
+});
+
+
+$('form').submit(function(e) {
+    e.preventDefault();
+    
+      var form_data = $(this).serialize();
+      console.log(form_data);
+      
+        var form_url = $(this).attr("action");
+        var form_method = $(this).attr("method").toUpperCase();
+        
+   
+        $.ajax({
+            url: form_url, 
+            type: form_method,      
+            data: form_data,     
+            cache: false,
+            success: function(returnhtml){                          
+                $("#result").html(returnhtml); 
+                $("#loadingimg").hide();                    
+            }           
+        });      
+});            
       </script>
   </body>
 </html>

@@ -1,0 +1,324 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <img class="target" src="dog.jpg" />
+        <button>clickyclicky</button>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>
+/////////////////////////////////
+//  Duralabel lightbox         //
+//  Coded with some nice       //
+//   functions in mind         //
+/////////////////////////////////
+
+            /* ----------------------------------------------------------------
+             How To:
+             The selector is the "click" or trigger.
+             image:
+             $('image class').DLlight();
+             Ajax:
+             $('.lightme').DLlight({
+             'type':'ajax',
+             'width':'650',
+             'page':'instructions.php .product-page div'
+             });
+             inline:
+             $('.lightme').DLlight({
+             'type':'inline',
+             'width':'650', <-- if you need to change but can be left blank
+             'elm':'.product-page' <-- div or class to change.
+             });
+             Class:
+             I feel this one is new, I will add a class to an element on the page to move or change
+             if you need to hide the element do so with javascript or css.
+             $('.reqinfo').DLlight({
+             'type':'class',
+             'width':'650px',
+             'elm':'#requestinfo', <-- element that you will be adding the class to.
+             'class_name':'this_hello' <-- class name to be added to the element
+             });
+             YouTube:
+             $('a.linkclass').DLlight({
+             'type':'youtube'
+             });
+             iframe:
+             $('a.linkclass').DLlight({
+             'type':'iframe',
+             'page':'http://www.duralabel.com',
+             'width':'650px',
+             'height':'700px'
+             });
+             -------------------------------------------------------------------	*/
+
+// light box function
+            (function($) {
+                $.fn.DLlight = function(options, callBack) {
+                    // Functions for lightbox
+                    var settings = $.extend({
+                        'type': 'img', // img, inline, class, ajax
+                        'page': '',
+                        'elm': '',
+                        'width': '',
+                        'height': '',
+                        'scroll': 'yes',
+                        'cssPosition': 'fixed',
+                        'endframe': '',
+                        'class_name': ''
+                    },
+                    options);
+                    // other settings.
+                    var cssPosition = 'fixed';
+                    // add the html to the DOM
+                    function isset(pram) {
+                        if (typeof pram != 'undefined') {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                    // close light box function
+                    function lightbox_close() {
+                        $('#dlclose, #blackout').click(function() {
+                            if (isset(settings.elm)) {
+                                $(settings.elm).removeClass();
+                                $(settings.elm).hide();
+                            }
+                            $('#lightbox_wrapper, #blackout, #dlclose').fadeOut(200);
+                            $('#lb_wrap').empty();
+                        });
+                    }
+
+                    if (document.all && !document.querySelector) { // fix z index for ie7
+                        var ieSeven = 'yes';
+                        $(function() { // thanks css-tricks.com
+                            var zIndexNumber = 1000;
+                            // Put your target element(s) in the selector below!
+                            $("div").each(function() {
+                                $(this).css({'zIndex': zIndexNumber});
+                                zIndexNumber -= 10;
+                            });
+                        });
+                    }
+
+                    if (settings.scroll === 'yes') {
+                        cssPosition = 'absolute';
+                    }
+                    if (settings.cssPosition === 'absolute') {
+                        cssPosition = 'absolute';
+                    }
+
+// pre you tube check and setup.
+                    if (settings.type === 'youtube') {
+                        cssPosition = 'absolute';
+                        var tag = document.createElement('script');
+                        tag.src = "//www.youtube.com/iframe_api";
+                        var firstScriptTag = document.getElementsByTagName('script')[0];
+                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                        var player;
+                        var video_width = 863;
+                        var video_height = 480;
+                        // youtube api stuff.
+                        function onYouTubeIframeAPIReady() {
+                            player = new YT.Player('player', {
+                                height: video_height,
+                                width: video_width,
+                                events: {
+                                    'onReady': onPlayerReady,
+                                    'onStateChange': onPlayerStateChange
+                                }
+                            });
+                        }
+
+                        function onPlayerStateChange(event) {
+                            if (event.data === 0 && typeof settings.endframe != 'undefined') {
+                                //settings.elm = '#requestinfo';
+                                //settings.class_name = 'form_pop_win';
+                                //light_fire(settings.endframe);
+                            }
+                        }
+
+                        function onPlayerReady(event) {
+                            event.target.playVideo();
+                        }
+                    }
+// styles, I would not do this if it was not light. if and only if it starts to get out of hand I will make a sheet for it.
+                    var Styles = '#lightbox_wrapper {display:none;left: 30%;margin: 0 auto;position:' + cssPosition + ';top: 30px;z-index: 5000;}';
+                    Styles += '#blackout {background: none repeat scroll 0 0 #000;height: 100%;left: 0;opacity: 0.8;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";filter: alpha(opacity=80);position: fixed;top: 0;width: 100%;z-index: 4000;display:none;}';
+                    Styles += '#lb_wrap {float:left;background: none repeat scroll 0 0 #fff;border-bottom: 1px solid #CCCCCC;padding: 5px;border-radius: 7px;}';
+                    Styles += '#dlclose {background: url("http://www.graphicproducts.com/images/close-circle.png") no-repeat scroll 0 0 transparent;cursor: pointer !important;width: 38px;height:38px;position: absolute;right: -23px;top: -15px;}';
+                    if (typeof settings.endframe != 'undefined') {
+                        Styles += '#iframe_load {position: absolute;top:0;}';
+                    }
+                    if ($('#lightbox_wrapper').length == 0 && ieSeven !== 'yes') {
+                        $('body').append('<div id="lightbox_wrapper"><div id="lb_wrap"></div><div id="dlclose"></div></div><div id="blackout"></div>');
+                        $('head').append('<style>' + Styles + '</style>');
+                    }
+                    if ($('#lightbox_wrapper').length == 0 && ieSeven === 'yes') {
+                        $('body').prepend('<div id="lightbox_wrapper"><div id="lb_wrap"></div><div id="dlclose"></div></div><div id="blackout"></div>');
+                        $('head').append('<style>' + Styles + '</style>');
+                    }
+
+                    function light_fire(type, this_click) {
+                        // window height and width
+                        var winHeight = $(window).height();
+                        var winWidth = $(window).width();
+
+                        $('#lightbox_wrapper, #blackout, #dlclose').fadeIn(200); // add background light
+
+                        // the image lightbox, also the default value
+                        if (type === 'img') {
+                            var TheImg = this_click.href; // get image
+                            $('.light_image').remove(); // remove old image
+
+                            $('#lb_wrap').append('<img style="display:none;" class="light_image" src="' + TheImg + '"/>');
+                            if ($('.light_image').width() > 400) {
+                                var lightWidth = $('.light_image').width();
+                                var imageWidth = $('.light_image').height();
+                            } else {
+                                var lightWidth = 400;
+                                var imageWidth = 400;
+                            }
+
+                            // image size for center on page.
+                            $('#lb_wrap').css({'overflow': 'hidden',
+                                'width': lightWidth,
+                                'height': imageWidth,
+                                'background': 'url(http://www.duralabel.com/images/loading.gif) no-repeat center center #FFFFFF'});
+                            $('.light_image').bind('load', function() {
+                                $('#lb_wrap').append('<img class="light_image" src="' + TheImg + '"/>');
+                                var imageHeight = $('.light_image').height();
+                                var imageWidth = $('.light_image').width();
+                                var PageWidth = (winWidth / 2) - (imageWidth / 2);
+                                $('#lb_wrap').animate({'height': imageHeight,
+                                    'width': imageWidth},
+                                400);
+                                $('#lightbox_wrapper').animate({'height': imageHeight,
+                                    'width': imageWidth,
+                                    'left': PageWidth},
+                                400);
+                                $(this_click).delay(800).fadeIn();
+                            });
+                        }
+
+                        // Ajax load, same domain.
+                        if (type === 'ajax') {
+                            $('#lb_wrap').load(settings.page);
+                        }
+                        $('#lightbox_wrapper').css('top', '50px');
+                        // inline div load
+                        if (type === 'inline') {
+                            var inline = $(settings.elm).first().html();
+                            $('#lb_wrap').empty().append('<div>' + inline + '</div>');
+                            var lightWidth = settings.width;
+                        }
+
+                        // youtube div load
+                        if (type === 'youtube') {
+                            var iframe = this_click.href;
+                            $('#lb_wrap').empty().append('<div><iframe id="player" type="text/html" width="863" height="480" src="' + iframe + '&enablejsapi=1&wmode=opaque&origin=' + location.protocol + '//' + location.hostname + '" frameborder="0" allowfullscreen></iframe></div>');
+                            var lightWidth = 853 + 10;
+                            onYouTubeIframeAPIReady();
+                            $('#dlclose').show();
+                            var TopPo = (parseInt(winHeight) / 2) / 4;
+                            var topscroll = parseInt($(document).scrollTop());
+                            $('#lightbox_wrapper').css({
+                                'top': topscroll + TopPo
+                            });
+
+                        }
+
+                        // Iframe
+                        if (type === 'iframe') {
+                            $('#lb_wrap').append('<div><iframe id="iframe_load" width="' + settings.width + '" height="' + settings.height + '" src="' + settings.page + '" frameborder="0"></iframe></div>');
+                            var lightWidth = settings.width + 10;
+                            $('#dlclose').show();
+                        }
+
+                        // class div move, for javascript dependent DOM objects
+                        if (type === 'class') {
+                            $(settings.elm).addClass(settings.class_name);
+                            $(settings.elm).show();
+                            if (typeof video_width === 'undefined') {
+                                var lightWidth = $(settings.elm).width();
+                                $('#lightbox_wrapper').hide();
+                                $(settings.elm).append('<div id="dlclose"></div>');
+                            }
+                        }
+                        if (isset(video_width)) {
+                            var PageWidth = video_width;
+                            //$('#lb_wrap').height(video_height);
+                        }
+                        var PageWidth = (winWidth / 2) - (lightWidth / 2);
+                        var TopPo = (winHeight / 2) / 4;
+                        $('#lightbox_wrapper').width(lightWidth);
+                        if (settings.scroll === 'yes') {
+                            $('#lb_wrap').width(lightWidth);
+                            $('#lb_wrap').css({'overflow': 'auto'});
+                        } else {
+                            $('#lb_wrap').width(lightWidth - 10);
+                        }
+                        $('#lightbox_wrapper').css('left', PageWidth);
+                        //$('#lightbox_wrapper').css('top', '50px');
+                        if (type === 'class') {
+                            if (typeof video_width != 'undefined') {
+                                formWidth = (winWidth / 2) - (375 / 2);
+                                $(settings.elm).css({
+                                    'box-shadow': '0px 0px 25px #303030',
+                                    'filter': 'progid:DXImageTransform.Microsoft.shadow(Strength=10, Direction=0, Color=\'#303030\') progid:DXImageTransform.Microsoft.shadow(Strength=10, Direction=270, Color=\'#303030\') progid:DXImageTransform.Microsoft.shadow(Strength=10, Direction=90, Color=\'#303030\') progid:DXImageTransform.Microsoft.shadow(Strength=10, Direction=180, Color=\'#303030\');'
+                                });
+                            } else {
+                                formWidth = PageWidth;
+                            }
+                            $(settings.elm).show();
+
+                            var topscroll = $(document).scrollTop();
+                            $(settings.elm).css({
+                                'left': formWidth,
+                                'top': topscroll + TopPo,
+                                'position': 'absolute',
+                                'z-index': '9000'
+                            });
+                        }
+                        $('#lightbox_wrapper').css({
+                            'left': PageWidth,
+                            'width': lightWidth
+                        });
+
+                        if (settings.scroll === 'yes') {
+                            $('#lb_wrap').css('width', lightWidth);
+                        }
+
+                        $(settings.elm).animate({'border': 'none'},
+                        1, callBack);
+                    }
+                    this.click(function(e) {
+                        e.preventDefault(); // keeps link from firing
+                        light_fire(settings.type, this);
+                        lightbox_close();
+                    });
+                }
+                return this;
+            })(jQuery);
+
+            $(document).ready(function() {
+                $('button').DLlight({
+                    "type": "img",
+                    "elm": 'target',
+                    "width": "400px"
+
+                });
+
+//$('.target').DLlight();
+            });
+
+        </script>
+    </body>
+</html>
